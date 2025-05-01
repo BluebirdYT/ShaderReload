@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import suso.shaderreload.ShaderReload;
@@ -18,9 +19,13 @@ import suso.shaderreload.ShaderReload;
 public abstract class KeyboardMixin {
     @Shadow @Final private MinecraftClient client;
 
-    @Inject(method = "processF3", at = @At(value = "INVOKE:LAST",
+    @Inject(method = "processF3", at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/gui/hud/ChatHud;addMessage(Lnet/minecraft/text/Text;)V",
-            shift = At.Shift.AFTER))
+            ordinal = 0,
+            shift = At.Shift.AFTER),
+            slice = @Slice(
+                    from = @At(value = "CONSTANT",
+                    args = "stringValue=debug.reload_resourcepacks.help")))
     private void onProcessF3$addHelp(int key, CallbackInfoReturnable<Boolean> cir) {
         client.inGameHud.getChatHud().addMessage(Text.translatable("debug.reload_shaders.help"));
     }
